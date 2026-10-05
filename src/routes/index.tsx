@@ -181,7 +181,7 @@ function Index() {
               {socials.map((x) => (
                 <a
                   key={x.key}
-                  href={socialHref(x.key, s!.socials[x.key])}
+                  href={socialHref(x.key, s!.socials[x.key] ?? "")}
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label={x.label}
@@ -204,7 +204,7 @@ function Index() {
   );
 }
 
-function ResultCard({ item, shop }: { item: Item; shop?: string }) {
+function ResultCard({ item, shop }: { item: Item; shop?: string | undefined }) {
   return (
     <div className="shadow-gold relative overflow-hidden rounded-3xl border border-gold/40 bg-card p-6">
       <Candles count={24} seed={item.code.length + 5} className="pointer-events-none absolute inset-0 h-full w-full opacity-10" />
