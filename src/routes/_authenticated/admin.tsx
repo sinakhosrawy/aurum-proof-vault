@@ -131,14 +131,14 @@ function Codes() {
   async function save(e: React.FormEvent) {
     e.preventDefault();
     const p = itemSchema.safeParse(form);
-    if (!p.success) return toast.error(p.error.issues[0].message);
+    if (!p.success) { toast.error(p.error.issues[0]?.message ?? "خطا"); return; }
     const row = { ...p.data, code: toEnDigits(p.data.code), result: toEnDigits(p.data.result), weight: p.data.weight || null, notes: p.data.notes || null };
     setBusy(true);
     const { error } = editing
       ? await supabase.from("gold_items").update(row).eq("id", editing.id)
       : await supabase.from("gold_items").insert(row);
     setBusy(false);
-    if (error) return toast.error(error.code === "23505" ? "این کد قبلاً ثبت شده است" : "خطا در ذخیره");
+    if (error) { toast.error(error.code === "23505" ? "این کد قبلاً ثبت شده است" : "خطا در ذخیره"); return; }
     toast.success(editing ? "ویرایش شد" : "کد ثبت شد");
     setEditing(null);
     setForm(empty);
@@ -148,7 +148,7 @@ function Codes() {
   async function remove(i: Item) {
     if (!confirm(`کد ${i.code} حذف شود؟`)) return;
     const { error } = await supabase.from("gold_items").delete().eq("id", i.id);
-    if (error) return toast.error("خطا در حذف");
+    if (error) { toast.error("خطا در حذف"); return; }
     toast.success("حذف شد");
     items.refetch();
   }
@@ -237,7 +237,7 @@ function useSettingsSave() {
   const qc = useQueryClient();
   return async (patch: Partial<SiteSettings>) => {
     const { error } = await supabase.from("site_settings").update({ ...patch, updated_at: new Date().toISOString() }).eq("id", 1);
-    if (error) return toast.error("خطا در ذخیره");
+    if (error) { toast.error("خطا در ذخیره"); return; }
     toast.success("ذخیره شد");
     qc.invalidateQueries({ queryKey: settingsQuery.queryKey });
   };
@@ -257,7 +257,7 @@ function SettingsForm() {
       onSubmit={(e) => {
         e.preventDefault();
         const p = s.safeParse(f);
-        if (!p.success) return toast.error("لطفاً فیلدها را بررسی کنید");
+        if (!p.success) { toast.error("لطفاً فیلدها را بررسی کنید"); return; }
         save(p.data);
       }}
       className="glass grid gap-4 rounded-3xl p-6 md:grid-cols-2"

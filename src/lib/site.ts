@@ -26,7 +26,7 @@ export function toEnDigits(s: string) {
     .replace(/[٠-٩]/g, (d) => String("٠١٢٣٤٥٦٧٨٩".indexOf(d)));
 }
 export function toFaDigits(s: string | number) {
-  return String(s).replace(/\d/g, (d) => "۰۱۲۳۴۵۶۷۸۹"[+d]);
+  return String(s).replace(/\d/g, (d) => "۰۱۲۳۴۵۶۷۸۹"[+d] ?? d);
 }
 export function faDate(iso: string) {
   try {
