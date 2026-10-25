@@ -5,6 +5,7 @@ import { Search, Phone, MapPin, ShieldCheck, Loader2, TrendingUp } from "lucide-
 import { supabase } from "@/integrations/supabase/client";
 import { settingsQuery, toEnDigits, toFaDigits, faDate } from "@/lib/site";
 import { Candles } from "@/components/Candles";
+import { PriceBoard, PriceTicker } from "@/components/PriceBoard";
 import { SocialIcon, SOCIALS, socialHref } from "@/components/SocialIcon";
 import goldBar from "@/assets/gold-bar.jpg";
 
@@ -22,7 +23,6 @@ export const Route = createFileRoute("/")({
 
 type Item = { code: string; title: string; result: string; weight: string | null; notes: string | null; created_at: string };
 
-const TICKER = ["طلای ۱۸ عیار", "طلای آب‌شده", "سکه امامی", "مثقال طلا", "انس جهانی", "نیم سکه", "ربع سکه", "طلای ۲۴ عیار"];
 
 function Index() {
   const { data: s } = useQuery(settingsQuery);
@@ -53,14 +53,7 @@ function Index() {
 
       {/* ticker */}
       <div className="relative z-10 overflow-hidden border-b border-border bg-background/60 py-2 text-xs backdrop-blur">
-        <div className="ticker-run flex w-max gap-8 whitespace-nowrap">
-          {[...TICKER, ...TICKER].map((t, i) => (
-            <span key={i} className="flex items-center gap-2 text-muted-foreground">
-              <span className={i % 3 === 0 ? "text-down" : "text-up"}>{i % 3 === 0 ? "▼" : "▲"}</span>
-              {t}
-            </span>
-          ))}
-        </div>
+        <PriceTicker />
       </div>
 
       <div className="relative z-10 mx-auto max-w-5xl px-4">
@@ -142,6 +135,9 @@ function Index() {
             )}
           </section>
         </div>
+
+        {/* live prices */}
+        <PriceBoard />
 
         {/* steps */}
         <section className="mt-16 grid gap-3 sm:grid-cols-3">

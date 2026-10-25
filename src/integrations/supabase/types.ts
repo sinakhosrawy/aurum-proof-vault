@@ -44,6 +44,36 @@ export type Database = {
         }
         Relationships: []
       }
+      gold_prices: {
+        Row: {
+          change: string
+          direction: string
+          key: string
+          label: string
+          unit: string
+          updated_at: string
+          value: string
+        }
+        Insert: {
+          change?: string
+          direction?: string
+          key: string
+          label: string
+          unit?: string
+          updated_at?: string
+          value?: string
+        }
+        Update: {
+          change?: string
+          direction?: string
+          key?: string
+          label?: string
+          unit?: string
+          updated_at?: string
+          value?: string
+        }
+        Relationships: []
+      }
       site_settings: {
         Row: {
           about: string
