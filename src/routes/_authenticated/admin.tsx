@@ -3,7 +3,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { z } from "zod";
-import { Plus, Trash2, Pencil, LogOut, Search, Save, X, Coins, Settings, Share2, ExternalLink } from "lucide-react";
+import { Plus, Trash2, Pencil, LogOut, Search, Save, X, Coins, Settings, Share2, ExternalLink, LineChart } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { settingsQuery, toEnDigits, toFaDigits, faDate, type Settings as SiteSettings } from "@/lib/site";
 import { SOCIALS, SocialIcon } from "@/components/SocialIcon";
@@ -38,7 +38,7 @@ function Admin() {
   const { user } = Route.useRouteContext();
   const nav = useNavigate();
   const qc = useQueryClient();
-  const [tab, setTab] = useState<"codes" | "settings" | "socials">("codes");
+  const [tab, setTab] = useState<"codes" | "prices" | "settings" | "socials">("codes");
 
   const isAdmin = useQuery({
     queryKey: ["is_admin", user.id],
@@ -66,6 +66,7 @@ function Admin() {
 
   const tabs = [
     { k: "codes", l: "کدهای طلا", i: Coins },
+    { k: "prices", l: "قیمت‌های طلا", i: LineChart },
     { k: "settings", l: "اطلاعات تماس", i: Settings },
     { k: "socials", l: "شبکه‌های اجتماعی", i: Share2 },
   ] as const;
@@ -98,6 +99,7 @@ function Admin() {
       </nav>
 
       {tab === "codes" && <Codes />}
+      {tab === "prices" && <PricesForm />}
       {tab === "settings" && <SettingsForm />}
       {tab === "socials" && <SocialsForm />}
     </div>

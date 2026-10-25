@@ -23,7 +23,6 @@ export const Route = createFileRoute("/")({
 
 type Item = { code: string; title: string; result: string; weight: string | null; notes: string | null; created_at: string };
 
-const TICKER = ["طلای ۱۸ عیار", "طلای آب‌شده", "سکه امامی", "مثقال طلا", "انس جهانی", "نیم سکه", "ربع سکه", "طلای ۲۴ عیار"];
 
 function Index() {
   const { data: s } = useQuery(settingsQuery);
