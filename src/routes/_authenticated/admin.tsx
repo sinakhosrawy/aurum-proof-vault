@@ -275,6 +275,84 @@ function SettingsForm() {
   );
 }
 
+type PriceRow = { key: string; label: string; unit: string; value: string; change: string; direction: string };
+
+function PricesForm() {
+  const qc = useQueryClient();
+  const prices = useQuery({
+    queryKey: ["admin_gold_prices"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("gold_prices").select("*").order("key");
+      if (error) throw error;
+      return data as PriceRow[];
+    },
+  });
+  const [f, setF] = useState<Record<string, { value: string; change: string; direction: string }>>({});
+  const [busy, setBusy] = useState(false);
+
+  useEffect(() => {
+    if (prices.data) {
+      const m: Record<string, { value: string; change: string; direction: string }> = {};
+      for (const r of prices.data) m[r.key] = { value: r.value, change: r.change, direction: r.direction };
+      setF(m);
+    }
+  }, [prices.data]);
+
+  async function saveAll(e: React.FormEvent) {
+    e.preventDefault();
+    setBusy(true);
+    let failed = false;
+    for (const r of prices.data ?? []) {
+      const v = f[r.key];
+      if (!v) continue;
+      const { error } = await supabase
+        .from("gold_prices")
+        .update({ value: toEnDigits(v.value).trim(), change: toEnDigits(v.change).trim(), direction: v.direction, updated_at: new Date().toISOString() })
+        .eq("key", r.key);
+      if (error) failed = true;
+    }
+    setBusy(false);
+    if (failed) { toast.error("خطا در ذخیره برخی قیمت‌ها"); return; }
+    toast.success("قیمت‌ها ذخیره شد");
+    qc.invalidateQueries({ queryKey: ["gold_prices"] });
+    prices.refetch();
+  }
+
+  return (
+    <form onSubmit={saveAll} className="glass rounded-3xl p-6">
+      <p className="mb-4 text-sm text-muted-foreground">
+        قیمت‌هایی که اینجا وارد کنید در مانیتور قیمت صفحه اصلی نمایش داده می‌شوند. اگر سرویس قیمت خودکار وصل شود، این مقادیر به‌صورت خودکار به‌روز می‌شوند.
+      </p>
+      <div className="grid gap-3 md:grid-cols-2">
+        {(prices.data ?? []).map((r) => {
+          const v = f[r.key] ?? { value: "", change: "", direction: "flat" };
+          const set = (patch: Partial<typeof v>) => setF({ ...f, [r.key]: { ...v, ...patch } });
+          return (
+            <div key={r.key} className="rounded-2xl border border-border bg-background/40 p-4">
+              <div className="mb-2 flex items-center justify-between">
+                <span className="text-sm font-bold">{r.label}</span>
+                <span className="text-[11px] text-muted-foreground">{r.unit}</span>
+              </div>
+              <div className="grid grid-cols-[1fr_90px_110px] gap-2">
+                <input dir="ltr" className={`${field} font-mono`} placeholder="قیمت" value={v.value} onChange={(e) => set({ value: e.target.value })} />
+                <input dir="ltr" className={`${field} font-mono`} placeholder="تغییر" value={v.change} onChange={(e) => set({ change: e.target.value })} />
+                <select className={field} value={v.direction} onChange={(e) => set({ direction: e.target.value })}>
+                  <option value="up">صعودی ▲</option>
+                  <option value="down">نزولی ▼</option>
+                  <option value="flat">بدون تغییر</option>
+                </select>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+      <button disabled={busy} className="bg-gold-gradient mt-5 flex w-full items-center justify-center gap-2 rounded-xl py-3 font-bold text-primary-foreground disabled:opacity-60">
+        <Save className="size-4" /> ذخیره قیمت‌ها
+      </button>
+    </form>
+  );
+}
+
 function SocialsForm() {
   const { data } = useQuery(settingsQuery);
   const save = useSettingsSave();
