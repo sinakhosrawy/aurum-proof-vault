@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { Search, Phone, MapPin, ShieldCheck, Loader2, TrendingUp } from "lucide-react";
@@ -62,9 +62,6 @@ function Index() {
               <div className="text-[11px] text-muted-foreground">استعلام عیار · سقز، کردستان</div>
             </div>
           </div>
-          <Link to="/admin" className="glass rounded-full px-4 py-2 text-xs font-medium text-steel">
-            پنل مدیریت
-          </Link>
         </header>
 
         <div className="grid items-start gap-8 pt-6 md:grid-cols-2 md:pt-12">
