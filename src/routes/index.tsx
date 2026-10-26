@@ -5,7 +5,6 @@ import { Search, Phone, MapPin, ShieldCheck, Loader2, TrendingUp } from "lucide-
 import { supabase } from "@/integrations/supabase/client";
 import { settingsQuery, toEnDigits, toFaDigits, faDate } from "@/lib/site";
 import { Candles } from "@/components/Candles";
-import { PriceBoard, PriceTicker } from "@/components/PriceBoard";
 import { SocialIcon, SOCIALS, socialHref } from "@/components/SocialIcon";
 import goldBar from "@/assets/gold-bar.jpg";
 
@@ -51,10 +50,6 @@ function Index() {
     <div className="relative min-h-screen overflow-hidden">
       <Candles count={40} seed={3} className="pointer-events-none absolute inset-x-0 top-0 h-[520px] w-full opacity-25" />
 
-      {/* ticker */}
-      <div className="relative z-10 overflow-hidden border-b border-border bg-background/60 py-2 text-xs backdrop-blur">
-        <PriceTicker />
-      </div>
 
       <div className="relative z-10 mx-auto max-w-5xl px-4">
         <header className="rise flex items-center justify-between py-5">
@@ -136,8 +131,6 @@ function Index() {
           </section>
         </div>
 
-        {/* live prices */}
-        <PriceBoard />
 
         {/* steps */}
         <section className="mt-16 grid gap-3 sm:grid-cols-3">
