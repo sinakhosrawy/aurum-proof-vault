@@ -73,9 +73,6 @@ function AuthPage() {
             رمز را فراموش کرده‌اید؟
           </button>
         )}
-        <button type="button" onClick={() => setMode(mode === "in" ? "up" : "in")} className="mt-3 w-full text-center text-sm text-steel">
-          {mode === "in" ? "حساب ندارید؟ ثبت‌نام" : "حساب دارید؟ ورود"}
-        </button>
       </form>
     </div>
   );
