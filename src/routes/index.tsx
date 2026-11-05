@@ -9,7 +9,7 @@ import emblem from "@/assets/gold-emblem.png";
 
 export const Route = createFileRoute("/")({
   validateSearch: (s: Record<string, unknown>): { code?: string } =>
-    s.code ? { code: String(s.code).slice(0, 40) } : {},
+    s["code"] ? { code: String(s["code"]).slice(0, 40) } : {},
   head: () => ({
     meta: [
       { title: "استعلام کد طلا | بهترین طلاساز سقز" },
