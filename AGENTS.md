@@ -10,5 +10,6 @@
 <!-- LOVABLE:END -->
 
 - Public gold lookup goes through the security-definer RPC `lookup_gold`; gold_items has no anon access. Why: customers can only fetch one code at a time, not list all.
-- Admin role lives in `user_roles`; the first signed-up account becomes admin via trigger. Why: no hardcoded credentials.
+- Admin role lives in `user_roles`; `has_role` additionally validates the designated account UUID. Why: one administrator is enforced by database policies, not browser checks; public registration is retired.
+- Password recovery uses a public reset-password route and a recovery-scoped session before changing the password. Why: email links must work outside the protected admin area.
 - Site settings (name, phones, address, socials jsonb) are a single row id=1 in `site_settings`, publicly readable. Why: admin edits everything from the panel.
