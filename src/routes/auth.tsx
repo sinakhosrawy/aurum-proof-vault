@@ -44,16 +44,6 @@ function AuthPage() {
     }
   }
 
-  async function forgot() {
-    const p = z.string().trim().email().safeParse(email);
-    if (!p.success) { toast.error("اول ایمیل خود را در کادر بالا وارد کنید"); return; }
-    setBusy(true);
-    const { error } = await supabase.auth.resetPasswordForEmail(p.data, { redirectTo: `${window.location.origin}/reset-password` });
-    setBusy(false);
-    if (error) toast.error("ارسال ایمیل ناموفق بود، کمی بعد دوباره تلاش کنید");
-    else toast.success("لینک ساخت رمز جدید به ایمیل شما ارسال شد.");
-  }
-
   return (
     <div className="flex min-h-screen items-center justify-center px-4">
       <form onSubmit={submit} className="glass rise w-full max-w-sm rounded-3xl p-6">
@@ -62,17 +52,15 @@ function AuthPage() {
           {mode === "in" ? "ورود به " : "ساخت حساب "}
           <span className="gold-text">پنل مدیریت</span>
         </h1>
-        <p className="mt-1 text-xs text-muted-foreground">فقط مدیر سایت به پنل دسترسی دارد.</p>
+        <p className="mt-1 text-xs text-muted-foreground">اولین حسابی که ساخته شود، مدیر سایت خواهد بود.</p>
         <input dir="ltr" type="email" placeholder="email@example.com" value={email} onChange={(e) => setEmail(e.target.value)} className="mt-5 w-full rounded-xl border border-input bg-background/70 px-4 py-3 outline-none focus:border-gold" />
         <input dir="ltr" type="password" placeholder="••••••" value={password} onChange={(e) => setPassword(e.target.value)} className="mt-3 w-full rounded-xl border border-input bg-background/70 px-4 py-3 outline-none focus:border-gold" />
         <button disabled={busy} className="bg-gold-gradient mt-4 w-full rounded-xl py-3 font-bold text-primary-foreground disabled:opacity-60">
           {mode === "in" ? "ورود" : "ثبت‌نام"}
         </button>
-        {mode === "in" && (
-          <button type="button" onClick={forgot} disabled={busy} className="mt-3 w-full text-center text-sm text-gold">
-            رمز را فراموش کرده‌اید؟
-          </button>
-        )}
+        <button type="button" onClick={() => setMode(mode === "in" ? "up" : "in")} className="mt-3 w-full text-center text-sm text-steel">
+          {mode === "in" ? "حساب ندارید؟ ثبت‌نام" : "حساب دارید؟ ورود"}
+        </button>
       </form>
     </div>
   );

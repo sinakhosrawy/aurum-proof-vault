@@ -1,21 +1,20 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
-import { Search, Phone, Smartphone, ShieldCheck, Loader2, MapPin } from "lucide-react";
+import { useState } from "react";
+import { Search, Phone, MapPin, ShieldCheck, Loader2, TrendingUp } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { settingsQuery, toEnDigits, toFaDigits, faDate } from "@/lib/site";
+import { Candles } from "@/components/Candles";
 import { SocialIcon, SOCIALS, socialHref } from "@/components/SocialIcon";
-import emblem from "@/assets/gold-emblem.png";
+import goldBar from "@/assets/gold-bar.jpg";
 
 export const Route = createFileRoute("/")({
-  validateSearch: (s: Record<string, unknown>): { code?: string } =>
-    s["code"] ? { code: String(s["code"]).slice(0, 40) } : {},
   head: () => ({
     meta: [
       { title: "استعلام کد طلا | بهترین طلاساز سقز" },
       { name: "description", content: "کد حک‌شده روی طلای خود را وارد کنید و نتیجه عیارسنجی رسمی کارگاه را ببینید." },
       { property: "og:title", content: "استعلام کد طلا | بهترین طلاساز سقز" },
-      { property: "og:description", content: "سامانه استعلام عیار طلا در سقز، کردستان." },
+      { property: "og:description", content: "استعلام آنلاین کد و عیار طلا در سقز، کردستان." },
     ],
   }),
   component: Index,
@@ -23,17 +22,17 @@ export const Route = createFileRoute("/")({
 
 type Item = { code: string; title: string; result: string; weight: string | null; notes: string | null; created_at: string };
 
+
 function Index() {
   const { data: s } = useQuery(settingsQuery);
-  const { code: urlCode } = Route.useSearch();
-  const navigate = useNavigate({ from: "/" });
-  const [code, setCode] = useState(urlCode ?? "");
+  const [code, setCode] = useState("");
   const [loading, setLoading] = useState(false);
   const [item, setItem] = useState<Item | null>(null);
   const [notFound, setNotFound] = useState(false);
 
-  async function run(raw: string) {
-    const c = toEnDigits(raw).trim();
+  async function lookup(e: React.FormEvent) {
+    e.preventDefault();
+    const c = toEnDigits(code).trim();
     if (!c || c.length > 40) return;
     setLoading(true);
     setNotFound(false);
@@ -45,143 +44,192 @@ function Index() {
     else setNotFound(true);
   }
 
-  useEffect(() => {
-    if (urlCode) {
-      setCode(urlCode);
-      run(urlCode);
-    }
-  }, [urlCode]);
-
-  function submit(e: React.FormEvent) {
-    e.preventDefault();
-    const c = toEnDigits(code).trim();
-    if (!c) return;
-    if (c === urlCode) run(c);
-    else navigate({ search: { code: c } });
-  }
-
-  const name = s?.name ?? "طلاسازی سقز";
   const socials = SOCIALS.filter((x) => s?.socials?.[x.key]);
-  const phones = [
-    { label: "تلفن", value: s?.phone, Icon: Phone },
-    { label: "شماره همراه", value: s?.phone2, Icon: Smartphone },
-  ].filter((p) => p.value);
 
   return (
-    <div className="lab-bg flex min-h-screen flex-col items-center px-4 pb-10">
-      <div className="flex w-full max-w-md justify-end pt-4">
-        <Link to="/admin" className="rounded-full border border-gold/30 px-3 py-1.5 text-[11px] text-gold/80">
-          پنل مدیریت
-        </Link>
-      </div>
+    <div className="relative min-h-screen overflow-hidden">
+      <Candles count={40} seed={3} className="pointer-events-none absolute inset-x-0 top-0 h-[520px] w-full opacity-25" />
 
-      <div className="relative mt-2 w-56">
-        <img src={emblem} alt={`لوگوی ${name}`} width={1024} height={768} className="w-full" />
-        <span className="gold-text absolute inset-0 grid place-items-center pt-6 text-xl font-black">{name}</span>
-      </div>
 
-      <h1 className="mt-3 text-center text-2xl font-black text-gold md:text-3xl">{name}</h1>
-      <p className="mt-2 text-sm text-gold/90">سامانه استعلام عیار طلا</p>
-
-      <form onSubmit={submit} className="mt-8 w-full max-w-md rounded-3xl p-3 shadow-2xl">
-        <div className="flex items-center gap-2 rounded-full border-2 border-gold/40 bg-background/30 p-1.5 focus-within:border-gold">
-          <input
-            dir="ltr"
-            inputMode="numeric"
-            maxLength={40}
-            value={code}
-            onChange={(e) => setCode(e.target.value)}
-            placeholder="کد استعلام"
-            aria-label="کد استعلام"
-            className="min-w-0 flex-1 bg-transparent px-4 py-2 text-center font-mono text-lg outline-none placeholder:text-muted-foreground/60"
-          />
-          <button
-            disabled={loading}
-            aria-label="استعلام"
-            className="bg-gold-gradient grid size-10 shrink-0 place-items-center rounded-full text-primary-foreground disabled:opacity-70"
-          >
-            {loading ? <Loader2 className="size-4 animate-spin" /> : <Search className="size-4" />}
-          </button>
-        </div>
-      </form>
-
-      {(item || notFound) && (
-        <div className="rise mt-4 w-full max-w-md">
-          {item ? (
-            <div className="lab-card rounded-2xl p-5">
-              <div className="flex items-center justify-center gap-1.5 text-sm font-bold text-up">
-                <ShieldCheck className="size-4" /> نتیجه تعیین عیار
-              </div>
-              <div className="mt-4 text-center">
-                <div className="text-xs text-muted-foreground">عیار</div>
-                <div className="gold-text font-mono text-6xl font-bold leading-tight">{toFaDigits(item.result)}</div>
-              </div>
-              <dl className="mt-4 divide-y divide-border/60 border-t border-border/60 text-sm">
-                {[
-                  ["کد", toFaDigits(item.code)],
-                  ["نوع", item.title || "طلا"],
-                  ["وزن", item.weight ? toFaDigits(item.weight) : "—"],
-                  ["تاریخ ثبت", faDate(item.created_at)],
-                ].map(([k, v]) => (
-                  <div key={k} className="flex justify-between py-2.5">
-                    <dt className="text-muted-foreground">{k}</dt>
-                    <dd className="font-bold">{v}</dd>
-                  </div>
-                ))}
-              </dl>
-              {item.notes && <p className="mt-3 text-center text-sm text-muted-foreground">{item.notes}</p>}
+      <div className="relative z-10 mx-auto max-w-5xl px-4">
+        <header className="rise flex items-center justify-between py-5">
+          <div className="flex items-center gap-3">
+            <div className="grid size-11 place-items-center rounded-xl border border-gold/40 bg-gold/10 text-xl font-black text-gold">
+              {(s?.name ?? "ط").trim().charAt(0)}
             </div>
-          ) : (
-            <div className="lab-card rounded-2xl p-5 text-center">
-              <div className="font-bold text-gold">کدی با این شماره ثبت نشده است</div>
-              <p className="mt-1 text-sm text-muted-foreground">کد را دوباره بررسی کنید یا با ما تماس بگیرید.</p>
+            <div className="leading-tight">
+              <div className="font-bold">{s?.name ?? "طلاسازی سقز"}</div>
+              <div className="text-[11px] text-muted-foreground">استعلام عیار · سقز، کردستان</div>
+            </div>
+          </div>
+        </header>
+
+        <div className="grid items-start gap-8 pt-6 md:grid-cols-2 md:pt-12">
+          <section className="rise [animation-delay:120ms]">
+            <div className="inline-flex items-center gap-2 rounded-full border border-gold/30 bg-gold/10 px-3 py-1 text-xs font-medium text-gold">
+              <span className="live-dot size-1.5 rounded-full bg-gold" />
+              {s?.tagline ?? "بهترین طلاساز شهرستان سقز"}
+            </div>
+            <h1 className="mt-5 text-balance text-4xl font-black leading-[1.15] md:text-6xl">
+              کد طلای خود را <span className="gold-text">استعلام بگیرید</span>
+            </h1>
+            <p className="mt-4 max-w-md text-pretty leading-relaxed text-muted-foreground">
+              کد حک‌شده روی طلا را وارد کنید تا نتیجه عیارسنجی کارگاه با مهر رسمی به شما نمایش داده شود.
+            </p>
+
+            <form onSubmit={lookup} className="glass relative mt-7 overflow-hidden rounded-3xl p-4">
+              <div className="sheen-run pointer-events-none absolute inset-y-0 right-0 w-1/3 bg-gradient-to-l from-transparent via-foreground/10 to-transparent" />
+              <label htmlFor="code" className="text-xs font-medium tracking-wider text-muted-foreground">
+                کد استعلام
+              </label>
+              <input
+                id="code"
+                inputMode="numeric"
+                dir="ltr"
+                maxLength={40}
+                value={code}
+                onChange={(e) => setCode(e.target.value)}
+                placeholder="۱۰۰۴۲"
+                className="mt-2 w-full rounded-2xl border border-input bg-background/70 px-4 py-3 text-center font-mono text-3xl font-bold tracking-[0.25em] outline-none placeholder:text-muted-foreground/40 focus:border-gold"
+              />
+              <button
+                disabled={loading}
+                className="bg-gold-gradient mt-3 flex w-full items-center justify-center gap-2 rounded-2xl px-4 py-3.5 text-base font-bold text-primary-foreground transition-transform active:scale-[0.98] disabled:opacity-70"
+              >
+                {loading ? <Loader2 className="size-5 animate-spin" /> : <Search className="size-5" />}
+                مشاهده نتیجه عیارسنجی
+              </button>
+            </form>
+          </section>
+
+          <section className="rise [animation-delay:240ms]">
+            {item ? (
+              <ResultCard item={item} shop={s?.name} />
+            ) : notFound ? (
+              <div className="glass rounded-3xl p-8 text-center">
+                <div className="text-5xl">؟</div>
+                <h3 className="mt-3 text-lg font-bold">کدی با این شماره ثبت نشده</h3>
+                <p className="mt-2 text-sm text-muted-foreground">کد را دوباره بررسی کنید یا با کارگاه تماس بگیرید.</p>
+              </div>
+            ) : (
+              <div className="glass relative overflow-hidden rounded-3xl">
+                <img src={goldBar} alt="شمش طلا با مهر عیارسنجی" width={1280} height={800} className="aspect-[16/10] w-full object-cover" />
+                <div className="relative h-36 border-t border-border p-4">
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="flex items-center gap-1.5 font-medium text-up">
+                      <TrendingUp className="size-4" /> بازار طلا
+                    </span>
+                    <span className="font-mono text-muted-foreground">XAU · LIVE</span>
+                  </div>
+                  <Candles count={30} seed={11} className="absolute inset-x-4 bottom-3 h-24 w-[calc(100%-2rem)]" />
+                </div>
+              </div>
+            )}
+          </section>
+        </div>
+
+
+        {/* steps */}
+        <section className="mt-16 grid gap-3 sm:grid-cols-3">
+          {[
+            ["۱", "ساخت و عیارسنجی", "هر قطعه در کارگاه ذوب و عیارسنجی می‌شود."],
+            ["۲", "ثبت کد اختصاصی", "کد و نتیجه در سامانه ثبت و روی طلا حک می‌شود."],
+            ["۳", "استعلام آنلاین", "مشتری با وارد کردن کد، نتیجه را می‌بیند."],
+          ].map(([n, t, d]) => (
+            <div key={n} className="glass rounded-2xl p-5">
+              <div className="gold-text font-mono text-3xl font-bold">{n}</div>
+              <h3 className="mt-2 font-bold">{t}</h3>
+              <p className="mt-1 text-sm text-muted-foreground">{d}</p>
+            </div>
+          ))}
+        </section>
+
+        {/* contact */}
+        <section className="glass mt-6 rounded-3xl p-6 md:p-8">
+          <h2 className="text-2xl font-black">درباره {s?.name ?? "کارگاه"}</h2>
+          <p className="mt-3 max-w-2xl leading-relaxed text-muted-foreground">{s?.about}</p>
+          <div className="mt-6 grid gap-3 sm:grid-cols-2">
+            {[s?.phone, s?.phone2].filter(Boolean).map((p) => (
+              <a key={p} href={`tel:${toEnDigits(p!)}`} className="flex items-center gap-3 rounded-2xl border border-border bg-background/40 p-4 transition-colors hover:border-gold/50">
+                <Phone className="size-5 text-gold" />
+                <span dir="ltr" className="font-mono">{toFaDigits(p!)}</span>
+              </a>
+            ))}
+            {s?.address && (
+              <div className="flex items-center gap-3 rounded-2xl border border-border bg-background/40 p-4">
+                <MapPin className="size-5 shrink-0 text-gold" />
+                <span>{s.address}</span>
+              </div>
+            )}
+          </div>
+          {socials.length > 0 && (
+            <div className="mt-6 flex flex-wrap gap-3">
+              {socials.map((x) => (
+                <a
+                  key={x.key}
+                  href={socialHref(x.key, s!.socials[x.key] ?? "")}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={x.label}
+                  className="group flex items-center gap-2 rounded-full border border-border bg-background/40 px-4 py-2 text-sm transition-all hover:-translate-y-0.5 hover:border-gold hover:text-gold"
+                >
+                  <SocialIcon name={x.key} />
+                  {x.label}
+                </a>
+              ))}
             </div>
           )}
-        </div>
-      )}
+        </section>
 
-      {phones.length > 0 && (
-        <div className="mt-10 grid w-full max-w-md grid-cols-2 gap-3">
-          {phones.map(({ label, value, Icon }) => (
-            <div key={label} className="lab-card relative rounded-2xl px-3 pb-5 pt-9 text-center">
-              <div className="bg-gold-gradient absolute -top-6 left-1/2 grid size-12 -translate-x-1/2 place-items-center rounded-full text-primary-foreground">
-                <Icon className="size-5" />
-              </div>
-              <div className="text-sm text-muted-foreground">{label}</div>
-              <a href={`tel:${toEnDigits(value!)}`} dir="ltr" className="mt-3 block font-mono font-bold text-gold underline underline-offset-4">
-                {value}
-              </a>
+        <footer className="flex items-center justify-between py-8 text-xs text-muted-foreground">
+          <span>© {s?.name ?? "طلاسازی سقز"} — سقز، کردستان</span>
+          <span className="font-mono">ASSAY · SAQQEZ</span>
+        </footer>
+      </div>
+    </div>
+  );
+}
+
+function ResultCard({ item, shop }: { item: Item; shop?: string | undefined }) {
+  return (
+    <div className="shadow-gold relative overflow-hidden rounded-3xl border border-gold/40 bg-card p-6">
+      <Candles count={24} seed={item.code.length + 5} className="pointer-events-none absolute inset-0 h-full w-full opacity-10" />
+      <div className="relative">
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <div className="flex items-center gap-1.5 text-xs font-medium text-up">
+              <ShieldCheck className="size-4" /> تأیید شده توسط کارگاه
             </div>
-          ))}
+            <div className="mt-1 font-bold">
+              {item.title || "طلا"} · کد <span className="font-mono">{toFaDigits(item.code)}</span>
+            </div>
+          </div>
+          <div className="stamp grid size-16 shrink-0 place-items-center rounded-full border-2 border-gold/70 bg-gold/10 text-center font-mono leading-none text-gold">
+            <div>
+              <div className="text-[7px] tracking-widest">ASSAY</div>
+              <div className="text-sm font-bold">{toFaDigits(item.result)}</div>
+              <div className="text-[6px] tracking-widest">SAQQEZ</div>
+            </div>
+          </div>
         </div>
-      )}
-
-      {s?.address && (
-        <div className="mt-3 flex w-full max-w-md items-center justify-center gap-2 text-sm text-muted-foreground">
-          <MapPin className="size-4 text-gold" /> {s.address}
+        <div className="mt-6 text-xs text-muted-foreground">جواب عیارسنجی</div>
+        <div className="gold-text font-mono text-7xl font-bold leading-tight md:text-8xl">{toFaDigits(item.result)}</div>
+        <div className="mt-5 grid grid-cols-2 gap-3 border-t border-border pt-4 text-sm">
+          <div>
+            <div className="text-xs text-muted-foreground">تاریخ ثبت</div>
+            <div className="mt-0.5 font-medium">{faDate(item.created_at)}</div>
+          </div>
+          <div>
+            <div className="text-xs text-muted-foreground">وزن</div>
+            <div className="mt-0.5 font-medium">{item.weight ? toFaDigits(item.weight) : "—"}</div>
+          </div>
+          <div className="col-span-2">
+            <div className="text-xs text-muted-foreground">کارگاه</div>
+            <div className="mt-0.5 font-medium">{shop ?? "طلاسازی سقز"}</div>
+          </div>
+          {item.notes && <p className="col-span-2 text-muted-foreground">{item.notes}</p>}
         </div>
-      )}
-
-      {socials.length > 0 && (
-        <div className="mt-5 flex flex-wrap justify-center gap-2">
-          {socials.map((x) => (
-            <a
-              key={x.key}
-              href={socialHref(x.key, s!.socials[x.key] ?? "")}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label={x.label}
-              className="grid size-10 place-items-center rounded-full border border-gold/40 text-gold transition-colors hover:bg-gold/10"
-            >
-              <SocialIcon name={x.key} />
-            </a>
-          ))}
-        </div>
-      )}
-
-      <footer className="mt-8 text-center text-xs text-gold/80">
-        © {toFaDigits(String(new Date().getFullYear() - 621))} تمامی حقوق محفوظ است | {name}
-      </footer>
+      </div>
     </div>
   );
 }
