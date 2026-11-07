@@ -16,6 +16,8 @@ export const Route = createFileRoute("/_authenticated/admin")({
       { name: "description", content: "ثبت کد طلا، نتیجه عیارسنجی و اطلاعات تماس." },
       { property: "og:title", content: "پنل مدیریت طلاسازی" },
       { property: "og:description", content: "مدیریت کدها و اطلاعات سایت." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
       { name: "robots", content: "noindex" },
     ],
   }),

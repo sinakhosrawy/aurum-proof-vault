@@ -15,6 +15,8 @@ export const Route = createFileRoute("/")({
       { name: "description", content: "کد حک‌شده روی طلای خود را وارد کنید و نتیجه عیارسنجی رسمی کارگاه را ببینید." },
       { property: "og:title", content: "استعلام کد طلا | بهترین طلاساز سقز" },
       { property: "og:description", content: "استعلام آنلاین کد و عیار طلا در سقز، کردستان." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: Index,
