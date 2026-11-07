@@ -118,10 +118,12 @@
 
 .lab-bg {
   background:
-    radial-gradient(ellipse at 50% 20%, oklch(0.34 0.05 175) 0%, transparent 60%),
-    oklch(0.24 0.04 180);
+    radial-gradient(ellipse at 50% 20%, oklch(0.32 0.07 258 / 80%) 0%, transparent 60%),
+    radial-gradient(50% 40% at 100% 60%, color-mix(in oklab, var(--gold) 10%, transparent), transparent),
+    linear-gradient(180deg, oklch(0.18 0.035 262), oklch(0.13 0.025 264));
 }
 .lab-card {
-  background: linear-gradient(180deg, oklch(0.36 0.04 180 / 0.6), oklch(0.28 0.04 180 / 0.6));
-  border: 1px solid oklch(0.5 0.04 180 / 0.5);
+  background: linear-gradient(180deg, oklch(0.25 0.045 260 / 0.75), oklch(0.19 0.035 262 / 0.75));
+  border: 1px solid color-mix(in oklab, var(--gold) 30%, transparent);
+  box-shadow: var(--shadow-gold);
 }
