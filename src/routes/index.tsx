@@ -59,7 +59,7 @@ function Index() {
           <div className="flex min-w-0 items-center gap-3">
             <div className="grid size-11 shrink-0 place-items-center overflow-hidden rounded-xl border border-gold/40 bg-gold/10 text-xl font-black text-gold">
               {s?.workshop_photo_url ? <img src={s.workshop_photo_url} alt={s.name} className="size-full object-cover" /> :
-              {(s?.name ?? "ط").trim().charAt(0)}
+              (s?.name ?? "ط").trim().charAt(0)
               }
             </div>
             <div className="min-w-0 leading-tight">
