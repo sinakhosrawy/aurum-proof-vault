@@ -7,6 +7,7 @@ import { settingsQuery, toEnDigits, toFaDigits, faDate } from "@/lib/site";
 import { Candles } from "@/components/Candles";
 import { SocialIcon, SOCIALS, socialHref } from "@/components/SocialIcon";
 import goldBar from "@/assets/gold-bar.jpg";
+import { GoldQuestions } from "@/components/GoldQuestions";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -231,6 +232,7 @@ function ResultCard({ item, shop }: { item: Item; shop?: string | undefined }) {
           </div>
           {item.notes && <p className="col-span-2 text-muted-foreground">{item.notes}</p>}
         </div>
+        <GoldQuestions key={item.code} code={item.code} />
       </div>
     </div>
   );
