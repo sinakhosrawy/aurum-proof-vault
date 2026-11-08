@@ -56,12 +56,14 @@ function Index() {
 
       <div className="relative z-10 mx-auto max-w-5xl px-4">
         <header className="rise flex items-center justify-between py-5">
-          <div className="flex items-center gap-3">
-            <div className="grid size-11 place-items-center rounded-xl border border-gold/40 bg-gold/10 text-xl font-black text-gold">
-              {(s?.name ?? "ط").trim().charAt(0)}
+          <div className="flex min-w-0 items-center gap-3">
+            <div className="grid size-11 shrink-0 place-items-center overflow-hidden rounded-xl border border-gold/40 bg-gold/10 text-xl font-black text-gold">
+              {s?.workshop_photo_url ? <img src={s.workshop_photo_url} alt={s.name} className="size-full object-cover" /> :
+              (s?.name ?? "ط").trim().charAt(0)
+              }
             </div>
-            <div className="leading-tight">
-              <div className="font-bold">{s?.name ?? "طلاسازی سقز"}</div>
+            <div className="min-w-0 leading-tight">
+              <div className="break-words font-bold">{s?.name ?? "طلاسازی سقز"}</div>
               <div className="text-[11px] text-muted-foreground">استعلام عیار · سقز، کردستان</div>
             </div>
           </div>
@@ -150,6 +152,7 @@ function Index() {
         {/* contact */}
         <section className="glass mt-6 rounded-3xl p-6 md:p-8">
           <h2 className="text-2xl font-black">درباره {s?.name ?? "کارگاه"}</h2>
+          {s?.workshop_photo_url && <img src={s.workshop_photo_url} alt={`کارگاه ${s.name}`} className="mt-5 max-h-96 w-full rounded-lg object-contain" />}
           <p className="mt-3 max-w-2xl leading-relaxed text-muted-foreground">{s?.about}</p>
           <div className="mt-6 grid gap-3 sm:grid-cols-2">
             {[s?.phone, s?.phone2].filter(Boolean).map((p) => (

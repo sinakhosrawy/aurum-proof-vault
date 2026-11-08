@@ -8,6 +8,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { settingsQuery, toEnDigits, toFaDigits, faDate, type Settings as SiteSettings } from "@/lib/site";
 import { SOCIALS, SocialIcon } from "@/components/SocialIcon";
 import { Candles } from "@/components/Candles";
+import { WorkshopPhotoUpload } from "@/components/WorkshopPhotoUpload";
+import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/_authenticated/admin")({
   head: () => ({
@@ -239,7 +241,7 @@ function L({ t, children }: { t: string; children: React.ReactNode }) {
 
 function useSettingsSave() {
   const qc = useQueryClient();
-  return async (patch: Partial<SiteSettings>) => {
+  return async (patch: Partial<Omit<SiteSettings, "workshop_photo_url">>) => {
     const { error } = await supabase.from("site_settings").update({ ...patch, updated_at: new Date().toISOString() }).eq("id", 1);
     if (error) { toast.error("خطا در ذخیره"); return; }
     toast.success("ذخیره شد");
@@ -250,29 +252,34 @@ function useSettingsSave() {
 function SettingsForm() {
   const { data } = useQuery(settingsQuery);
   const save = useSettingsSave();
-  const [f, setF] = useState({ name: "", tagline: "", about: "", phone: "", phone2: "", address: "" });
+  const [uploading, setUploading] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [f, setF] = useState({ name: "", tagline: "", about: "", phone: "", phone2: "", address: "", workshop_photo_path: "" });
   useEffect(() => {
-    if (data) setF({ name: data.name, tagline: data.tagline, about: data.about, phone: data.phone, phone2: data.phone2, address: data.address });
+    if (data) setF({ name: data.name, tagline: data.tagline, about: data.about, phone: data.phone, phone2: data.phone2, address: data.address, workshop_photo_path: data.workshop_photo_path });
   }, [data]);
-  const s = z.object({ name: z.string().trim().min(1).max(80), tagline: z.string().trim().max(120), about: z.string().trim().max(1000), phone: z.string().trim().max(30), phone2: z.string().trim().max(30), address: z.string().trim().max(200) });
+  const s = z.object({ name: z.string().trim().min(1).max(80), tagline: z.string().trim().max(120), about: z.string().trim().max(1000), phone: z.string().trim().max(30), phone2: z.string().trim().max(30), address: z.string().trim().max(200), workshop_photo_path: z.string().max(200) });
 
   return (
     <form
-      onSubmit={(e) => {
+      onSubmit={async (e) => {
         e.preventDefault();
+        if (uploading || saving) return;
         const p = s.safeParse(f);
         if (!p.success) { toast.error("لطفاً فیلدها را بررسی کنید"); return; }
-        save(p.data);
+        setSaving(true);
+        try { await save(p.data); } finally { setSaving(false); }
       }}
       className="glass grid gap-4 rounded-3xl p-6 md:grid-cols-2"
     >
       <L t="نام کارگاه"><input className={field} value={f.name} onChange={(e) => setF({ ...f, name: e.target.value })} /></L>
+      <div className="md:col-span-2"><WorkshopPhotoUpload preview={data?.workshop_photo_url ?? ""} onChange={path => setF(previous => ({ ...previous, workshop_photo_path: path }))} onBusy={setUploading} /></div>
       <L t="شعار"><input className={field} value={f.tagline} onChange={(e) => setF({ ...f, tagline: e.target.value })} /></L>
       <L t="شماره تماس ۱"><input dir="ltr" className={field} value={f.phone} onChange={(e) => setF({ ...f, phone: e.target.value })} /></L>
       <L t="شماره تماس ۲"><input dir="ltr" className={field} value={f.phone2} onChange={(e) => setF({ ...f, phone2: e.target.value })} /></L>
       <div className="md:col-span-2"><L t="آدرس"><input className={field} value={f.address} onChange={(e) => setF({ ...f, address: e.target.value })} /></L></div>
       <div className="md:col-span-2"><L t="درباره کارگاه"><textarea rows={4} className={field} value={f.about} onChange={(e) => setF({ ...f, about: e.target.value })} /></L></div>
-      <button className="bg-gold-gradient flex items-center justify-center gap-2 rounded-xl py-3 font-bold text-primary-foreground md:col-span-2"><Save className="size-4" /> ذخیره اطلاعات</button>
+      <Button type="submit" disabled={uploading || saving} className="bg-gold-gradient h-auto py-3 font-bold text-primary-foreground md:col-span-2"><Save className="size-4" /> {saving ? "در حال ذخیره…" : "ذخیره اطلاعات"}</Button>
     </form>
   );
 }

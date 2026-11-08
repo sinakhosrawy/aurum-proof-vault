@@ -1,0 +1,3 @@
+ALTER TABLE public.site_settings ADD COLUMN workshop_photo_path text NOT NULL DEFAULT '';
+CREATE POLICY "admin manage workshop photos" ON storage.objects FOR ALL TO authenticated USING (bucket_id = 'workshop-photos' AND public.has_role(auth.uid(), 'admin'::public.app_role)) WITH CHECK (bucket_id = 'workshop-photos' AND public.has_role(auth.uid(), 'admin'::public.app_role));
+CREATE POLICY "read current workshop photo" ON storage.objects FOR SELECT TO anon, authenticated USING (bucket_id = 'workshop-photos' AND name = (SELECT workshop_photo_path FROM public.site_settings WHERE id = 1));
