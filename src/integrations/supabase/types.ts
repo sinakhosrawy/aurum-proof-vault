@@ -85,6 +85,7 @@ export type Database = {
           socials: Json
           tagline: string
           updated_at: string
+          workshop_photo_path: string
         }
         Insert: {
           about?: string
@@ -96,6 +97,7 @@ export type Database = {
           socials?: Json
           tagline?: string
           updated_at?: string
+          workshop_photo_path?: string
         }
         Update: {
           about?: string
@@ -107,6 +109,7 @@ export type Database = {
           socials?: Json
           tagline?: string
           updated_at?: string
+          workshop_photo_path?: string
         }
         Relationships: []
       }
