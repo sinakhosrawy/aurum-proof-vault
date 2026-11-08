@@ -3,6 +3,8 @@ import { supabase } from "@/integrations/supabase/client";
 
 export type Settings = {
   name: string;
+  workshop_photo_path: string;
+  workshop_photo_url?: string;
   tagline: string;
   about: string;
   phone: string;
@@ -16,8 +18,15 @@ export const settingsQuery = queryOptions({
   queryFn: async (): Promise<Settings> => {
     const { data, error } = await supabase.from("site_settings").select("*").eq("id", 1).single();
     if (error) throw error;
-    return { ...data, socials: (data.socials ?? {}) as Record<string, string> };
+    let workshop_photo_url = "";
+    if (data.workshop_photo_path) {
+      const photo = await supabase.storage.from("workshop-photos").createSignedUrl(data.workshop_photo_path, 3600);
+      workshop_photo_url = photo.data?.signedUrl ?? "";
+    }
+    return { ...data, workshop_photo_url, socials: (data.socials ?? {}) as Record<string, string> };
   },
+  staleTime: 30 * 60 * 1000,
+  refetchInterval: 30 * 60 * 1000,
 });
 
 export function toEnDigits(s: string) {
