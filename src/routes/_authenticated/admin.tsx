@@ -241,7 +241,7 @@ function L({ t, children }: { t: string; children: React.ReactNode }) {
 
 function useSettingsSave() {
   const qc = useQueryClient();
-  return async (patch: Partial<SiteSettings>) => {
+  return async (patch: Partial<Omit<SiteSettings, "workshop_photo_url">>) => {
     const { error } = await supabase.from("site_settings").update({ ...patch, updated_at: new Date().toISOString() }).eq("id", 1);
     if (error) { toast.error("خطا در ذخیره"); return; }
     toast.success("ذخیره شد");
