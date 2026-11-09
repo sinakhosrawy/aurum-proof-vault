@@ -1,0 +1,1 @@
+DROP POLICY IF EXISTS "read current workshop photo" ON storage.objects;
