@@ -1,5 +1,6 @@
 import { queryOptions } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { getPublishedWorkshopPhoto } from "./workshop-photo.functions";
 
 export type Settings = {
   name: string;
@@ -20,8 +21,7 @@ export const settingsQuery = queryOptions({
     if (error) throw error;
     let workshop_photo_url = "";
     if (data.workshop_photo_path) {
-      const photo = await supabase.storage.from("workshop-photos").createSignedUrl(data.workshop_photo_path, 3600);
-      workshop_photo_url = photo.data?.signedUrl ?? "";
+      workshop_photo_url = await getPublishedWorkshopPhoto().catch(() => "");
     }
     return { ...data, workshop_photo_url, socials: (data.socials ?? {}) as Record<string, string> };
   },

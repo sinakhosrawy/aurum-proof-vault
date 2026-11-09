@@ -6,3 +6,4 @@
 - [x] Restrict management to designated account in database permissions, block new registration, and add password recovery; account access and recovery-email request verified.
 - [x] Add customer AI questions grounded in the currently looked-up gold piece; real answers verified for 10042 → 775, absent weight, and unavailable owner/prices/other codes on desktop and mobile; eight tests pass.
 - [x] Add workshop photo upload beside its name; authenticated upload/save and signed-out mobile display verified, then temporary photo removed and original name restored.
+- [ ] Replace direct public storage access with controlled signing of only the published workshop photo; verify admin upload and public display.
